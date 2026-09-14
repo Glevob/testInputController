@@ -78,8 +78,7 @@ const InputController = (() => {
       act.enabled = true;
 
      if (!wasEnabled && this.enabled && this.focused) {
-       const isNowActive = this.isActionActive(actionName);
-       if (isNowActive && !act.active) {
+       if (this.isActionActive(actionName) && !act.active) {
 	act.active = true;
 	this._dispatch(this.ACTION_ACTIVED, actionName);
       }
