@@ -31,6 +31,20 @@ const InputController = (() => {
       }
     }
 
+    get enabled() {
+      return this._enabled;
+    }
+    
+    set enabled(value) {
+      const boolVal = Boolean(value);
+      if (this._enabled && !boolVal) {
+         this._enabled = false;
+         this.reserState();
+      } else {
+	 this._enabled = boolVal;
+      }
+    }
+
     bindActions(actionsToBind) {
       for (const [actionName, config] of Object.entries(actionsToBind)) {
         const keysArr = config.keys || [];
@@ -88,7 +102,6 @@ const InputController = (() => {
         this.target = null;
       }
       this.enabled = false;
-      this._resetState();
     }
 
     isActionActive(actionName) {
@@ -122,7 +135,7 @@ const InputController = (() => {
     }
 
     _onKeyUp(event) {
-      if (!this.enabled) return;
+      //if (!this.enabled) return;
       
       const code = event.keyCode || event.which;
       this._pressedKeys.delete(code);
