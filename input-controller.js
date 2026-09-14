@@ -7,7 +7,7 @@ const InputController = (() => {
     ACTION_DEACTIVATED = InputController.ACTION_DEACTIVATED;
 
     constructor(actionsToBind = {}, target = null) {
-      this.enabled = true;
+      this._enabled = true;
       this.focused = true;
       this.target = null;
 
@@ -37,11 +37,13 @@ const InputController = (() => {
     
     set enabled(value) {
       const boolVal = Boolean(value);
-      if (this._enabled && !boolVal) {
+      const wasEnabled = this._enabled;
+      if (wasEnabled && !boolVal) {
          this._enabled = false;
          this._resetState();
-      } else {
-	 this._enabled = boolVal;
+      } else if (!wasEnabled && boolVal) {
+	 this._enabled = true;
+	 this._updateActionsState();
       }
     }
 
@@ -80,7 +82,7 @@ const InputController = (() => {
      if (!wasEnabled && this.enabled && this.focused) {
        if (this.isActionActive(actionName) && !act.active) {
 	act.active = true;
-	this._dispatch(this.ACTION_ACTIVED, actionName);
+	this._dispatch(this.ACTION_ACTIVATED, actionName);
       }
      }
     }
@@ -91,7 +93,7 @@ const InputController = (() => {
       act.enabled = false;
       if (act.active) {
         act.active = false;
-        this._dispatchDirect(this.ACTION_DEACTIVATED, actionName);
+        this._dispatch(this.ACTION_DEACTIVATED, actionName);
       }
     }
 
