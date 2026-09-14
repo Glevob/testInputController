@@ -39,7 +39,7 @@ const InputController = (() => {
       const boolVal = Boolean(value);
       if (this._enabled && !boolVal) {
          this._enabled = false;
-         this.reserState();
+         this._resetState();
       } else {
 	 this._enabled = boolVal;
       }
@@ -86,6 +86,9 @@ const InputController = (() => {
       if (this.target) {
         this.detach();
       }
+      
+      this._pressedKeys.clear();
+
       this.target = target;
       if (!dontEnable) {
         this.enabled = true;
@@ -99,6 +102,7 @@ const InputController = (() => {
       if (this.target) {
         this.target.removeEventListener("keydown", this._onKeyDown);
         this.target.removeEventListener("keyup", this._onKeyUp);
+        this._resetState();
         this.target = null;
       }
       this.enabled = false;
@@ -178,7 +182,7 @@ const InputController = (() => {
     }
 
     _dispatch(eventName, actionName) {
-      if (!this.target || !this.enabled) return;
+      if (!this.target) return;
 
       const customEvent = new CustomEvent(eventName, {
         detail: { action: actionName },
