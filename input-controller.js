@@ -48,7 +48,8 @@ const InputController = (() => {
     bindActions(actionsToBind) {
       for (const [actionName, config] of Object.entries(actionsToBind)) {
         const keysArr = config.keys || [];
-        const isEnabled = config.enabled !== undefined ? Boolean(config.enabled) : true;
+	const hasEnabledConfig = config.enabled !== undefined;
+        const isEnabled = hasEnabledConfig ? Boolean(config.enabled) : true;
 
         if (!this._actions[actionName]) {
           this._actions[actionName] = {
@@ -57,28 +58,41 @@ const InputController = (() => {
             active: false
           };
         } else {
-          keysArr.forEach(k => this._actions[actionName].keys.add(k));
-          if (config.enabled !== undefined) {
-            this._actions[actionName].enabled = isEnabled;
-          }
-        }
-      }
-    }
+            keysArr.forEach(k => this._actions[actionName].keys.add(k));
+            if (hasEnabledConfig) {
+	      if (isEnabled) {
+                this.enableAction(actionName);
+              } else {
+	      this.disableAction(actionName);
+              }
+            }
+         }
+       }
+     }
 
     enableAction(actionName) {
-      if (this._actions[actionName]) {
-        this._actions[actionName].enabled = true;
+      const act = this._actions[actionName];
+      if (!act) return;
+      
+      const wasEnabled = act.enabled;
+      act.enabled = true;
+
+     if (!wasEnabled && this.enabled && this.focused) {
+       const isNowActive = this.isActionActive(actionName);
+       if (isNowActive && !act.active) {
+	act.active = true;
+	this._dispatch(this.ACTION_ACTIVED, actionName);
       }
+     }
     }
 
     disableAction(actionName) {
-      if (this._actions[actionName]) {
-        const act = this._actions[actionName];
-        act.enabled = false;
-        if (act.active) {
-          act.active = false;
-          this._dispatch(this.ACTION_DEACTIVATED, actionName);
-        }
+      const act = this._actions[actionName];
+      if (!act) return;
+      act.enabled = false;
+      if (act.active) {
+        act.active = false;
+        this._dispatchDirect(this.ACTION_DEACTIVATED, actionName);
       }
     }
 
